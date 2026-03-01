@@ -55,7 +55,7 @@ cd ~/Desktop/code/skills
 
 The script is safe to re-run. It skips skills already correctly linked and won't touch skills installed by other means (real directories).
 
-> The default install path is `~/.cursor/skills/`. If your IDE uses a different skills directory, pass it as an argument: `./install.sh /path/to/skills`.
+> The default install path is `~/.cursor/skills/`. If your IDE or CLI uses a different skills directory, pass it as an argument: `./install.sh /path/to/skills`.
 
 ### Updating
 
