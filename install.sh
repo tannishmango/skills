@@ -32,9 +32,10 @@ for skill_dir in "$REPO_DIR"/*/; do
   skill_name="$(basename "$skill_dir")"
   target="$SKILLS_DIR/$skill_name"
 
-  # Skip non-skill entries (hidden dirs, files)
+  # Skip non-skill entries (hidden dirs, files, reserved names)
   [[ "$skill_name" == .* ]] && continue
   [[ ! -d "$skill_dir" ]] && continue
+  [[ "$skill_name" == "demos" ]] && continue
 
   if [ -L "$target" ]; then
     existing="$(readlink "$target")"
