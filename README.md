@@ -2,6 +2,8 @@
 
 A collection of Agent Skills for AI coding assistants. Each skill gives the agent specialized knowledge, workflows, and capabilities it wouldn't reliably have on its own.
 
+Skills are platform-agnostic — they work with any agent that supports skill/context loading, including Cursor and Claude Code.
+
 ## Skills
 
 ### `give-me-a-prompt`
