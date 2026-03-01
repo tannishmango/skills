@@ -2,16 +2,23 @@
 
 ## Contents
 
-- [Directory Structure](#directory-structure) - Three-tier hierarchy, file organization
-- [TOC Formats](#toc-formats) - Self-descriptive entries, linking patterns
-- [Navigation Trees](#navigation-trees) - Decision routing, conditional workflows
-- [Indexed Snippets](#indexed-snippets) - Searchable code blocks with context
-- [Checklist Workflows](#checklist-workflows) - Multi-step trackable processes
-- [Progressive Disclosure](#progressive-disclosure) - When to inline vs reference
-- [Template Pattern](#template-pattern) - Output format templates for consistent results
-- [Examples Pattern](#examples-pattern) - Input/output examples for quality-dependent tasks
-- [Feedback Loop Pattern](#feedback-loop-pattern) - Validation loops for quality-critical tasks
-- [Complete Example](#complete-example) - Full worked skill with all files
+- [Directory Structure](#directory-structure) - Three-tier hierarchy and one-level references
+- [TOC Formats](#toc-formats) - Self-descriptive entries and contextual links
+- [Navigation Trees](#navigation-trees) - Decision routing and conditional workflows
+- [Evaluation Scenario Pattern](#evaluation-scenario-pattern) - Baseline and JSON scenario templates
+- [Model Coverage Pattern](#model-coverage-pattern) - Cross-model test matrix format
+- [Observation Loop Pattern](#observation-loop-pattern) - Observe-refine-test workflow with log template
+- [Plan-Validate-Execute Pattern](#plan-validate-execute-pattern) - Safe execution for risky or batch operations
+- [Runtime And Dependency Pattern](#runtime-and-dependency-pattern) - Declare tooling assumptions and setup
+- [MCP Tool Reference Pattern](#mcp-tool-reference-pattern) - Fully qualified tool naming
+- [Script Intent Pattern](#script-intent-pattern) - Explicit execute-vs-read instructions
+- [Visual Analysis Pattern](#visual-analysis-pattern) - When and how to use image-based analysis
+- [Template Pattern](#template-pattern) - Output-format templates
+- [Examples Pattern](#examples-pattern) - Input/output style guidance
+- [Checklist Workflow Pattern](#checklist-workflow-pattern) - Trackable multi-step execution
+- [Progressive Disclosure Pattern](#progressive-disclosure-pattern) - What to keep inline vs referenced
+- [Authoring-Testing Loop Pattern](#authoring-testing-loop-pattern) - Two-instance refinement cycle
+- [Complete Example](#complete-example) - End-to-end skill skeleton
 
 ---
 
@@ -19,37 +26,36 @@
 
 ### Three-Tier Hierarchy
 
-```
+```text
 skill-name/
 ├── SKILL.md              # Tier 1: Navigation hub (<500 lines)
-├── reference/            # Tier 2: Detailed docs
+├── references/            # Tier 2: Detailed docs (read on demand)
+│   ├── workflows.md
 │   ├── api.md
-│   ├── schemas.md
 │   └── examples.md
-└── scripts/              # Tier 3: Executable utilities
+└── scripts/              # Tier 3: Utilities (executed or read)
     ├── validate.py
-    └── generate.py
+    └── transform.py
 ```
 
 ### Flat vs Nested
 
-Prefer flat structure—all reference files directly under skill directory or one `reference/` folder:
-
-```
-# Good - flat
+```text
+# Good
 skill/
 ├── SKILL.md
-├── patterns.md
-├── examples.md
+├── references/
+│   ├── api.md
+│   └── workflows.md
 └── scripts/
 
-# Bad - deeply nested
+# Bad
 skill/
 ├── SKILL.md
 └── docs/
     └── advanced/
-        └── details/
-            └── info.md
+        └── internals/
+            └── details.md
 ```
 
 ---
@@ -58,27 +64,22 @@ skill/
 
 ### Self-Descriptive Entries
 
-Each TOC entry must contain enough context for relevance determination:
-
 ```markdown
 ## Contents
 
-- [Authentication](#authentication) - JWT setup, token refresh, Redis session storage
-- [Database Queries](#database-queries) - BigQuery schemas, query optimization, caching
-- [Error Handling](#error-handling) - Retry patterns, exponential backoff, alert thresholds
-- [Deployment](#deployment) - Docker builds, K8s configs, rollback procedures
+- [Authentication](#authentication) - OAuth flow, token refresh, session storage
+- [Database Queries](#database-queries) - Query templates, index hints, pagination
+- [Validation](#validation) - Schema checks, error patterns, retry strategy
 ```
 
-### Link with Context
-
-When linking to files, include what's inside:
+### Link With Context
 
 ```markdown
-## Reference Files
+## References
 
-- [api.md](api.md) - REST endpoints, authentication headers, rate limits
-- [schemas.md](schemas.md) - Database tables, column types, relationships
-- [examples.md](examples.md) - Common queries, edge cases, troubleshooting
+- [references/workflows.md](references/workflows.md) - End-to-end operational flows
+- [references/api.md](references/api.md) - Endpoint definitions and constraints
+- [references/examples.md](references/examples.md) - Real input/output examples
 ```
 
 ---
@@ -87,389 +88,376 @@ When linking to files, include what's inside:
 
 ### Decision Router
 
-Guide agents to correct content without forcing reads:
-
 ```markdown
 ## Task Router
 
-**Creating new content?**
-→ See [creation.md](creation.md) for templates
+**Creating a new artifact?**
+→ See [references/workflows.md](references/workflows.md) - Creation workflow and templates
 
-**Debugging existing code?**
-→ See [debugging.md](debugging.md) for diagnostics
+**Updating existing artifacts?**
+→ See [references/workflows.md](references/workflows.md) - Edit and validation loop
 
-**Deploying changes?**
-→ See [deployment.md](deployment.md) for CI/CD
+**Troubleshooting failures?**
+→ See [references/api.md](references/api.md) - Error signatures and remedies
 ```
 
 ### Conditional Workflow
 
-For tasks with branches:
-
 ```markdown
 ## Modification Workflow
 
-1. Determine modification type:
+1. Determine mode:
+   - **Create** -> Creation path
+   - **Edit** -> Edit path
 
-   **Creating new?** → Follow Creation Workflow
-   **Editing existing?** → Follow Edit Workflow
+2. Creation path:
+   - Build draft from template
+   - Validate draft
 
-2. Creation Workflow:
-   - Use template from [templates.md](templates.md)
-   - Validate with `python scripts/validate.py`
-
-3. Edit Workflow:
-   - Read existing file
-   - Apply changes
-   - Run validation
+3. Edit path:
+   - Read current state
+   - Apply change
+   - Revalidate
 ```
 
 ---
 
-## Indexed Snippets
+## Evaluation Scenario Pattern
 
-### With Searchable Context
+Create evaluations before writing extensive docs.
 
-Provide snippets with enough metadata for discovery:
+### Baseline Steps
 
 ```markdown
-## Common Operations
+1. Run 2-5 representative tasks without the skill.
+2. Record concrete misses (missing rule, wrong tool, wrong format, etc.).
+3. Convert misses into evaluation scenarios.
+```
 
-### Database Connection (PostgreSQL, connection pooling, async)
-\`\`\`python
-from db import get_pool
-async with get_pool().acquire() as conn:
-    result = await conn.fetch("SELECT * FROM users")
-\`\`\`
+### Scenario Template
 
-### API Authentication (JWT, bearer tokens, refresh)
-\`\`\`python
-headers = {"Authorization": f"Bearer {get_token()}"}
-response = requests.get(url, headers=headers)
-\`\`\`
+```json
+{
+  "skills": ["skill-name"],
+  "query": "Perform task X with constraints Y",
+  "files": ["optional/input.file"],
+  "expected_behavior": [
+    "Behavior 1 must happen",
+    "Behavior 2 must happen",
+    "Behavior 3 must happen"
+  ]
+}
+```
 
-### File Processing (CSV, pandas, chunked reading)
-\`\`\`python
-for chunk in pd.read_csv("large.csv", chunksize=10000):
-    process(chunk)
-\`\`\`
+### Minimum Coverage Rule
+
+```markdown
+- At least 3 scenarios
+- Include one edge case
+- Include one failure recovery case
 ```
 
 ---
 
-## Checklist Workflows
+## Model Coverage Pattern
 
-### Trackable Multi-Step Processes
-
-```markdown
-## Deployment Checklist
-
-Copy and track:
-
-\`\`\`
-- [ ] Run tests: `pytest tests/`
-- [ ] Build container: `docker build -t app .`
-- [ ] Push to registry: `docker push`
-- [ ] Deploy: `kubectl apply -f k8s/`
-- [ ] Verify: `kubectl get pods`
-- [ ] Monitor: Check logs for 5 minutes
-\`\`\`
-```
-
-### With Validation Gates
+Use a small matrix to ensure coverage across model tiers used by your team.
 
 ```markdown
-## Release Workflow
+## Model Test Matrix
 
-\`\`\`
-Phase 1: Preparation
-- [ ] All tests passing
-- [ ] Version bumped
-- [ ] Changelog updated
-
-Phase 2: Build (only after Phase 1 complete)
-- [ ] Docker image built
-- [ ] Image scanned for vulnerabilities
-
-Phase 3: Deploy (only after Phase 2 complete)
-- [ ] Staged deployment
-- [ ] Smoke tests passing
-- [ ] Production deployment
-\`\`\`
+| Model tier          | Scenario set | Pass rate | Notes                       |
+| ------------------- | ------------ | --------- | --------------------------- |
+| Fast tier           | 1, 2, 3      | 2/3       | Missed strict output format |
+| Balanced tier       | 1, 2, 3      | 3/3       | Pass                        |
+| High-reasoning tier | 1, 2, 3      | 3/3       | Pass                        |
 ```
+
+If one tier fails consistently, adjust instructions for clarity and rerun.
 
 ---
 
-## Progressive Disclosure
+## Observation Loop Pattern
 
-### When to Inline
+Track real usage and update the skill from evidence.
 
-Put content directly in SKILL.md when:
-- It's essential for most uses of the skill
-- It's under 20 lines
-- Agents need it immediately without navigation
-
-### When to Reference
-
-Move to separate files when:
-- Content exceeds 30 lines
-- Only needed for specific sub-tasks
-- It's reference material (API docs, schemas)
-- It changes independently from core workflow
-
-### Example Split
-
-**SKILL.md** (inline essentials):
 ```markdown
-## Quick Start
+## Observe-Refine-Test Log
 
-Run validation:
-\`\`\`bash
-python scripts/validate.py input.json
-\`\`\`
+### Observation
 
-## Detailed Reference
+- Task: User asked for weekly report generation
+- Miss: Agent skipped required validation step
 
-- For schema definitions, see [schemas.md](schemas.md)
-- For error codes, see [errors.md](errors.md)
+### Refinement
+
+- Added explicit "validate before publish" gate in workflow section
+
+### Retest
+
+- Re-ran scenarios 2 and 3
+- Result: Pass
 ```
 
-**schemas.md** (detailed reference):
-```markdown
-# Schema Definitions
+Use this loop continuously, not just once at initial authoring.
 
-## User Schema
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| id | uuid | yes | Primary key |
-| email | string | yes | Unique email |
-...
+---
+
+## Plan-Validate-Execute Pattern
+
+Use this for risky, destructive, or large batch operations.
+
+```markdown
+## Batch Update Workflow
+
+1. Plan:
+   - Build `changes.json` with proposed updates
+
+2. Validate:
+   - Run `python scripts/validate_changes.py changes.json`
+   - Fix errors until validation passes
+
+3. Execute:
+   - Run `python scripts/apply_changes.py changes.json`
+
+4. Verify:
+   - Run post-checks
+   - If failed, return to plan step
 ```
+
+Prefer deterministic validation output with actionable error messages.
+
+---
+
+## Runtime And Dependency Pattern
+
+State assumptions explicitly so runtime behavior is predictable.
+
+````markdown
+## Runtime Requirements
+
+- Python 3.11+
+- Packages:
+  - `pydantic`
+  - `httpx`
+
+Install:
+
+```bash
+pip install pydantic httpx
+```
+
+Do not assume these packages are available unless installed in the current environment.
+````
+
+Use concrete package names and direct install instructions.
+
+---
+
+## MCP Tool Reference Pattern
+
+Always use fully qualified names.
+
+```markdown
+Use `GitHub:create_issue` to open issues.
+Use `BigQuery:bigquery_schema` to fetch schema metadata.
+```
+
+Avoid unqualified references like `create_issue` without server prefix.
+
+---
+
+## Script Intent Pattern
+
+Explicitly state whether scripts should be executed or read.
+
+```markdown
+## Script Usage
+
+- Execute: `python scripts/validate.py output.json`
+- Read-only reference: `scripts/validate.py` explains validation rules
+```
+
+If both are needed, specify order and purpose.
+
+---
+
+## Visual Analysis Pattern
+
+Use this when layout or spatial relationships matter.
+
+```markdown
+## Visual Layout Workflow
+
+1. Convert source to images:
+   `python scripts/render_pages.py input.pdf output_pages/`
+2. Analyze rendered images for field positions and visual anomalies.
+3. Generate structured mapping output.
+4. Validate mapping before apply step.
+```
+
+Use visual analysis when text-only parsing is unreliable.
 
 ---
 
 ## Template Pattern
 
-Provide output format templates for consistent results:
+Use strict templates when output format must be exact.
+
+````markdown
+## Output Template
+
+ALWAYS use:
 
 ```markdown
-## Report Structure
+# [Title]
 
-Use this template:
+## Summary
 
-\`\`\`markdown
-# [Analysis Title]
+[One paragraph]
 
-## Executive Summary
-[One-paragraph overview of key findings]
+## Findings
 
-## Key Findings
-- Finding 1 with supporting data
-- Finding 2 with supporting data
+- Finding with evidence
 
-## Recommendations
-1. Specific actionable recommendation
-2. Specific actionable recommendation
-\`\`\`
+## Actions
+
+1. Action item
 ```
+````
+
+For flexible tasks, present the template as a default, not a hard requirement.
 
 ---
 
 ## Examples Pattern
 
-For skills where output quality depends on seeing examples:
+Provide input/output pairs when style quality matters.
+
+````markdown
+## Commit Message Examples
+
+Input: Add retry logic to API client
+Output:
+
+```
+fix(api): add retry logic for transient failures
+
+Retry on timeout and 5xx responses with capped exponential backoff
+```
+````
+
+Include multiple examples that differ in scope and intent.
+
+---
+
+## Checklist Workflow Pattern
+
+Track progress explicitly for complex tasks.
 
 ```markdown
-## Commit Message Format
+## Release Checklist
 
-**Example 1:**
-Input: Added user authentication with JWT tokens
-Output:
-\`\`\`
-feat(auth): implement JWT-based authentication
+- [ ] Run tests
+- [ ] Validate outputs
+- [ ] Build artifact
+- [ ] Deploy
+- [ ] Verify post-deploy behavior
+```
 
-Add login endpoint and token validation middleware
-\`\`\`
+Add gate conditions when one phase must finish before the next starts.
 
-**Example 2:**
-Input: Fixed bug where dates displayed incorrectly
-Output:
-\`\`\`
-fix(reports): correct date formatting in timezone conversion
+---
 
-Use UTC timestamps consistently across report generation
-\`\`\`
+## Progressive Disclosure Pattern
+
+### Keep Inline In SKILL.md
+
+- High-frequency steps
+- Critical safety rules
+- Short sections (typically under ~20 lines)
+
+### Move To Reference Files
+
+- Long schemas
+- Large examples
+- Task-specific subflows
+- Materials not needed on every invocation
+
+### Example Split
+
+```markdown
+# SKILL.md
+
+## Quick Start
+
+Run `python scripts/validate.py input.json`
+
+## Detailed References
+
+- [references/errors.md](references/errors.md) - Error catalog and remediations
 ```
 
 ---
 
-## Feedback Loop Pattern
+## Authoring-Testing Loop Pattern
 
-For quality-critical tasks, implement validation loops:
+Use a two-instance approach to reduce blind spots.
 
 ```markdown
-## Document Editing Process
+## Iteration Loop
 
-1. Make your edits
-2. **Validate immediately**: `python scripts/validate.py output/`
-3. If validation fails:
-   - Review the error message
-   - Fix the issues
-   - Run validation again
-4. **Only proceed when validation passes**
+1. Authoring instance drafts/updates skill instructions.
+2. Testing instance performs real tasks using the skill.
+3. Capture misses in a short log.
+4. Feed misses back into authoring instance.
+5. Re-test and repeat until stable.
 ```
+
+This pattern keeps improvements grounded in observed behavior.
 
 ---
 
 ## Complete Example
 
-A full worked example of a well-structured skill.
-
-### Directory Structure
-
-```
-code-review/
+```text
+reporting-skill/
 ├── SKILL.md
-├── standards.md
-└── examples.md
+├── references/
+│   ├── workflows.md
+│   ├── schemas.md
+│   └── examples.md
+└── scripts/
+    ├── validate_report.py
+    └── generate_report.py
 ```
-
-### SKILL.md
 
 ```markdown
 ---
-name: code-review
-description: Review code for quality, security, and maintainability following team standards. Use when reviewing pull requests, examining code changes, or when the user asks for a code review.
+name: generating-reports
+description: Generates validated operational reports with consistent structure. Use when creating weekly or monthly reports or when the user requests report synthesis from structured data.
 ---
 
-# Code Review
+# Report Generation
 
 ## Contents
 
-- [Quick Start](#quick-start) - Core review process
-- [Review Checklist](#review-checklist) - Items to verify
-- [Feedback Format](#feedback-format) - How to structure comments
-- [Reference Files](#reference-files) - Detailed standards and examples
+- [Quick Start](#quick-start) - Generate and validate report
+- [Task Router](#task-router) - Choose workflow by task type
+- [References](#references) - Deep docs and schema details
 
 ## Quick Start
 
-When reviewing code:
+1. Build draft report
+2. Validate using `python scripts/validate_report.py report.json`
+3. Revise until validation passes
 
-1. Check for correctness and potential bugs
-2. Verify security best practices
-3. Assess code readability and maintainability
-4. Ensure tests are adequate
+## Task Router
 
-## Review Checklist
+**Need schema details?** -> [references/schemas.md](references/schemas.md) - Source fields and types
+**Need edge-case examples?** -> [references/examples.md](references/examples.md) - Failure and recovery examples
 
-- [ ] Logic is correct and handles edge cases
-- [ ] No security vulnerabilities (SQL injection, XSS, etc.)
-- [ ] Code follows project style conventions
-- [ ] Functions are appropriately sized and focused
-- [ ] Error handling is comprehensive
-- [ ] Tests cover the changes
+## References
 
-## Feedback Format
-
-Format feedback as:
-- 🔴 **Critical**: Must fix before merge
-- 🟡 **Suggestion**: Consider improving
-- 🟢 **Nice to have**: Optional enhancement
-
-## Reference Files
-
-- [standards.md](standards.md) - Detailed coding standards, security requirements
-- [examples.md](examples.md) - Example reviews showing good feedback patterns
-```
-
-### standards.md
-
-```markdown
-# Coding Standards
-
-## Contents
-
-- [Security](#security) - SQL injection, XSS, auth patterns
-- [Performance](#performance) - Query optimization, caching
-- [Style](#style) - Naming, formatting, organization
-
----
-
-## Security
-
-### SQL Injection Prevention
-Always use parameterized queries:
-\`\`\`python
-# Good
-cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-
-# Bad
-cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
-\`\`\`
-
-### XSS Prevention
-Escape all user input in templates. Use framework-provided escaping.
-
----
-
-## Performance
-
-### Query Optimization
-- Add indexes for frequently queried columns
-- Avoid N+1 queries—use JOINs or batch loading
-- Paginate large result sets
-
----
-
-## Style
-
-### Naming
-- Functions: verb_noun (get_user, create_order)
-- Classes: PascalCase (UserService, OrderProcessor)
-- Constants: UPPER_SNAKE (MAX_RETRIES, API_TIMEOUT)
-```
-
-### examples.md
-
-```markdown
-# Review Examples
-
-## Example 1: Security Issue
-
-**Code:**
-\`\`\`python
-def get_user(user_id):
-    query = f"SELECT * FROM users WHERE id = {user_id}"
-    return db.execute(query)
-\`\`\`
-
-**Feedback:**
-🔴 **Critical**: SQL injection vulnerability. User input is interpolated directly into query string.
-
-**Fix:**
-\`\`\`python
-def get_user(user_id):
-    return db.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-\`\`\`
-
----
-
-## Example 2: Suggestion
-
-**Code:**
-\`\`\`python
-def process_items(items):
-    results = []
-    for item in items:
-        result = transform(item)
-        results.append(result)
-    return results
-\`\`\`
-
-**Feedback:**
-🟡 **Suggestion**: Consider using list comprehension for cleaner code:
-\`\`\`python
-def process_items(items):
-    return [transform(item) for item in items]
-\`\`\`
+- [references/workflows.md](references/workflows.md) - End-to-end generation flows
 ```

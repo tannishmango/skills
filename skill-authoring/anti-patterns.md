@@ -1,254 +1,375 @@
 # Skill Anti-Patterns
 
-Common mistakes that reduce skill effectiveness.
+Common mistakes that reduce skill reliability, discoverability, or execution quality.
 
 ## Contents
 
-- [Deep Nesting](#deep-nesting) - References linking to references, causes partial reads
-- [Vague TOC Entries](#vague-toc-entries) - Labels without context, forces speculative reads
-- [Over-Explanation](#over-explanation) - Explaining what Claude knows, wastes tokens
-- [Vague Descriptions](#vague-descriptions) - No triggers/keywords, breaks discovery
-- [Wrong Voice](#wrong-voice-in-description) - First/second person in description field
-- [Too Many Options](#too-many-options) - Multiple approaches without guidance
-- [Time-Sensitive Content](#time-sensitive-content) - Instructions that become outdated
-- [Monolithic SKILL.md](#monolithic-skillmd) - Everything inline, wastes context
-- [Scripts That Punt](#scripts-that-punt) - Error handling left to agent
-- [Windows Paths](#windows-paths) - Backslashes break Unix systems
+- [Deep Nesting](#deep-nesting) - Reference chains deeper than one level
+- [Vague TOC Entries](#vague-toc-entries) - Labels without context
+- [Over-Explanation](#over-explanation) - Repeating knowledge the model already has
+- [Vague Descriptions](#vague-descriptions) - Missing capabilities, triggers, and keywords
+- [Wrong Voice In Description](#wrong-voice-in-description) - First/second person discovery text
+- [Too Many Options](#too-many-options) - Multiple defaults with no guidance
+- [Time-Sensitive Content](#time-sensitive-content) - Instructions that decay over time
+- [Monolithic SKILL.md](#monolithic-skillmd) - Oversized hub with all details inline
+- [No Evaluations](#no-evaluations) - No baseline or test scenarios
+- [No Model Coverage](#no-model-coverage) - Skill only tested on one model tier
+- [No Observation Loop](#no-observation-loop) - No real-usage feedback cycle
+- [Unqualified MCP Tools](#unqualified-mcp-tools) - Missing `ServerName:tool_name`
+- [Dependency Assumptions](#dependency-assumptions) - Assuming tools/packages are installed
+- [Missing Validation Checkpoints](#missing-validation-checkpoints) - No plan-validate-execute gates
+- [Ambiguous Script Intent](#ambiguous-script-intent) - Unclear whether to run or read scripts
+- [Scripts That Punt](#scripts-that-punt) - Error handling deferred to the agent
+- [Windows Paths](#windows-paths) - Backslashes in cross-platform skill docs
 
 ---
 
 ## Deep Nesting
 
-**Problem**: References that link to files that link to other files.
+**Problem**: SKILL.md links to references that link to deeper references.
 
 ```markdown
 # Bad
-SKILL.md → reference.md → details.md → specifics.md
+
+SKILL.md -> reference.md -> details.md -> specifics.md
 ```
 
-**Why it fails**: Agent may partially read nested files, missing critical information.
+**Why it fails**: The agent may only partially inspect nested files and miss critical content.
 
-**Fix**: Flatten to one level.
+**Fix**: Keep links one level deep from SKILL.md.
 
 ```markdown
 # Good
-SKILL.md → reference.md
-SKILL.md → details.md
-SKILL.md → specifics.md
+
+SKILL.md -> reference.md
+SKILL.md -> details.md
+SKILL.md -> specifics.md
 ```
 
 ---
 
 ## Vague TOC Entries
 
-**Problem**: TOC entries that are just labels.
+**Problem**: TOC entries are only section names.
 
 ```markdown
 # Bad
+
 ## Contents
+
 - Authentication
 - Database
-- Errors
 ```
 
-**Why it fails**: Agent cannot determine relevance, must read speculatively.
+**Why it fails**: The agent cannot decide relevance without speculative reads.
 
-**Fix**: Self-descriptive entries.
+**Fix**: Use self-descriptive TOC entries.
 
 ```markdown
 # Good
+
 ## Contents
-- [Authentication](#auth) - OAuth2 flow, JWT tokens, 1-hour expiry
-- [Database](#db) - PostgreSQL pooling, migration commands
-- [Errors](#errors) - Retry patterns, alert thresholds
+
+- [Authentication](#authentication) - OAuth flow, token refresh, session storage
+- [Database](#database) - Query templates, index hints, pagination
 ```
 
 ---
 
 ## Over-Explanation
 
-**Problem**: Explaining things Claude already knows.
+**Problem**: Explaining standard concepts instead of task-critical specifics.
 
 ```markdown
 # Bad
-PDF (Portable Document Format) is a file format developed by Adobe
-that contains text, images, and other content. To extract text from
-a PDF, you'll need to use a library. There are many libraries...
+
+PDF files are a common format. To extract text, you need a library...
 ```
 
-**Why it fails**: Wastes tokens, clutters context.
+**Why it fails**: Wastes context and hides the actionable guidance.
 
-**Fix**: Assume knowledge, provide only project-specific details.
+**Fix**: Assume baseline knowledge and provide concrete instructions.
 
-```markdown
+````markdown
 # Good
-Use pdfplumber for extraction:
-\`\`\`python
-import pdfplumber
+
+Use pdfplumber:
+
+```python
 with pdfplumber.open("file.pdf") as pdf:
     text = pdf.pages[0].extract_text()
-\`\`\`
 ```
+````
 
 ---
 
 ## Vague Descriptions
 
-**Problem**: Description doesn't help with discovery.
+**Problem**: Description is too broad for discovery.
 
-```markdown
+```yaml
 # Bad
-description: Helps with music data stuff.
+description: Helps with data work.
 ```
 
-**Why it fails**: No trigger keywords, no specificity, agent can't match to tasks.
+**Why it fails**: The skill is not discoverable for specific requests.
 
 **Fix**: Include capabilities, triggers, and keywords.
 
-```markdown
+```yaml
 # Good
-description: Process royalty reports and sync platform data. Use when handling MLC pipelines, debugging data imports, or when the user mentions ISRCs, ISWCs, or metadata reconciliation.
+description: Generates validated weekly operational reports. Use when creating recurring reports or when the user mentions report synthesis, KPI summaries, or weekly status dashboards.
 ```
 
 ---
 
-## Wrong Voice in Description
+## Wrong Voice In Description
 
-**Problem**: First or second person in description.
+**Problem**: First or second person in frontmatter description.
 
-```markdown
+```yaml
 # Bad
-description: I can help you process Excel files.
-description: You can use this to analyze spreadsheets.
+description: I help you process spreadsheets.
+description: You can use this for analytics.
 ```
 
-**Why it fails**: Description is injected into system prompt; inconsistent voice causes discovery issues.
+**Why it fails**: Discovery text is injected into system context; voice inconsistency harms matching.
 
-**Fix**: Third person.
+**Fix**: Use third-person phrasing.
 
-```markdown
+```yaml
 # Good
-description: Processes Excel files and generates reports.
+description: Processes spreadsheets and generates analytical summaries.
 ```
 
 ---
 
 ## Too Many Options
 
-**Problem**: Presenting multiple approaches without guidance.
+**Problem**: Presenting several equivalent approaches without default guidance.
 
 ```markdown
 # Bad
-You can use pypdf, or pdfplumber, or PyMuPDF, or pdf2image...
+
+You can use pypdf, pdfplumber, PyMuPDF, or custom OCR...
 ```
 
-**Why it fails**: Agent must choose without context, may choose poorly.
+**Why it fails**: Increases decision noise and inconsistent behavior.
 
-**Fix**: Provide a default with escape hatch.
+**Fix**: Provide one default path and one explicit fallback.
 
 ```markdown
 # Good
-Use pdfplumber for text extraction.
 
-For scanned PDFs requiring OCR, use pdf2image with pytesseract instead.
+Use pdfplumber for text extraction.
+For scanned PDFs, use OCR with pytesseract.
 ```
 
 ---
 
 ## Time-Sensitive Content
 
-**Problem**: Instructions that will become outdated.
+**Problem**: Instructions tied to date windows that later become incorrect.
 
 ```markdown
 # Bad
-If you're doing this before August 2025, use the old API.
-After August 2025, use the new API.
+
+Before August 2025 use API v1, after August 2025 use API v2.
 ```
 
-**Why it fails**: Creates confusion, wrong instructions over time.
+**Why it fails**: Old text survives and creates contradictory behavior.
 
-**Fix**: Current method primary, deprecated in collapsible section.
-
-```markdown
-# Good
-## Current Method
-Use v2 API endpoint.
-
-## Deprecated
-<details>
-<summary>Legacy v1 API (removed 2025-08)</summary>
-The v1 endpoint is no longer supported.
-</details>
-```
+**Fix**: Keep one current method and move legacy behavior to a deprecated section.
 
 ---
 
 ## Monolithic SKILL.md
 
-**Problem**: Everything in one file.
+**Problem**: Putting all details in SKILL.md.
 
 ```markdown
-# Bad - 800 line SKILL.md with everything inline
+# Bad
+
+SKILL.md with 800+ lines and no references
 ```
 
-**Why it fails**: All content loads on trigger, wastes context window.
+**Why it fails**: Bloats context whenever the skill triggers.
 
-**Fix**: Navigation hub with references.
+**Fix**: Keep SKILL.md as a concise router and move details to references.
+
+---
+
+## No Evaluations
+
+**Problem**: Authoring docs without baseline or explicit scenario tests.
 
 ```markdown
-# Good - SKILL.md as index
-## Quick Start
-[Essential 20 lines]
+# Bad
 
-## Reference
-- [api.md](api.md) - Endpoint details
-- [schemas.md](schemas.md) - Data structures
+No baseline tasks
+No evaluation scenarios
+```
+
+**Why it fails**: Improvements are unmeasured and regressions go unnoticed.
+
+**Fix**:
+
+- Run representative tasks without the skill.
+- Define at least three evaluation scenarios.
+- Add expected behavior for each scenario.
+
+---
+
+## No Model Coverage
+
+**Problem**: Testing the skill on only one model tier.
+
+```markdown
+# Bad
+
+Validated only on one high-capability model.
+```
+
+**Why it fails**: Instructions may fail on faster tiers or be overly verbose on stronger tiers.
+
+**Fix**: Test across all model tiers used in production workflows.
+
+---
+
+## No Observation Loop
+
+**Problem**: No post-launch observation and refinement cycle.
+
+```markdown
+# Bad
+
+Skill written once and never tested on real usage.
+```
+
+**Why it fails**: Real-world misses remain unresolved.
+
+**Fix**: Run an observe-refine-test loop and log misses with corresponding edits.
+
+---
+
+## Unqualified MCP Tools
+
+**Problem**: MCP tools are referenced without server prefix.
+
+```markdown
+# Bad
+
+Use `create_issue`
+```
+
+**Why it fails**: Tool resolution fails or becomes ambiguous.
+
+**Fix**: Use `ServerName:tool_name`.
+
+```markdown
+# Good
+
+Use `GitHub:create_issue`
+```
+
+---
+
+## Dependency Assumptions
+
+**Problem**: Skill assumes packages or CLIs already exist.
+
+```markdown
+# Bad
+
+Run `python process.py` (without listing dependencies)
+```
+
+**Why it fails**: Runtime errors and inconsistent behavior across environments.
+
+**Fix**: Declare runtime requirements and installation steps explicitly.
+
+---
+
+## Missing Validation Checkpoints
+
+**Problem**: Directly applying changes without validating intermediate artifacts.
+
+```markdown
+# Bad
+
+Generate updates and apply immediately.
+```
+
+**Why it fails**: Errors propagate into destructive or large-scale operations.
+
+**Fix**: Use plan-validate-execute.
+
+```markdown
+# Good
+
+1. Create `changes.json`
+2. Validate `changes.json`
+3. Apply only if validation passes
+4. Verify output
+```
+
+---
+
+## Ambiguous Script Intent
+
+**Problem**: Script references do not specify execute vs read.
+
+```markdown
+# Bad
+
+See `scripts/validate.py`
+```
+
+**Why it fails**: The agent may read when it should execute, or execute when reference was intended.
+
+**Fix**: Explicit intent wording.
+
+```markdown
+# Good
+
+Execute: `python scripts/validate.py report.json`
+Read-only reference: `scripts/validate.py` documents rule definitions
 ```
 
 ---
 
 ## Scripts That Punt
 
-**Problem**: Scripts that fail and expect agent to figure it out.
+**Problem**: Scripts fail and leave recovery to the agent.
 
 ```python
 # Bad
-def process_file(path):
-    return open(path).read()  # Just fails if file missing
+def process(path):
+    return open(path).read()
 ```
 
-**Why it fails**: Agent wastes turns debugging, may not recover.
+**Why it fails**: Error handling becomes inconsistent and brittle.
 
-**Fix**: Handle errors explicitly.
-
-```python
-# Good
-def process_file(path):
-    try:
-        with open(path) as f:
-            return f.read()
-    except FileNotFoundError:
-        print(f"File {path} not found, creating empty")
-        Path(path).touch()
-        return ""
-```
+**Fix**: Handle expected failures with clear recovery behavior.
 
 ---
 
 ## Windows Paths
 
-**Problem**: Backslashes in file paths.
+**Problem**: Backslashes in file references.
 
 ```markdown
 # Bad
-See scripts\helper.py
+
+See scripts\validate.py
 ```
 
-**Why it fails**: Breaks on Unix systems.
+**Why it fails**: Breaks on Unix environments and reduces portability.
 
-**Fix**: Always forward slashes.
+**Fix**: Use forward slashes universally.
 
 ```markdown
 # Good
-See scripts/helper.py
+
+See scripts/validate.py
 ```

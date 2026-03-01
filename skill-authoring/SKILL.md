@@ -1,203 +1,203 @@
 ---
 name: skill-authoring
-description: Design and create effective Agent Skills following progressive disclosure principles. Use when creating skills, writing SKILL.md files, designing skill architecture, or when the user asks about skill best practices, TOC requirements, or context optimization.
+description: Designs and creates effective Agent Skills using progressive disclosure, evaluation-first workflows, and verification loops. Use when creating or updating skills, improving skill discovery, structuring SKILL.md files, or validating skill quality.
 ---
 
 # Skill Authoring
 
 ## Contents
 
-- [Mental Model](#mental-model) - How skills load, three-tier architecture
-- [Quick Reference](#quick-reference) - Constraints, limits, storage locations
-- [Task Router](#task-router) - Navigate to correct reference by task type
-- [Before You Begin](#before-you-begin) - Requirements gathering checklist
-- [Workflow](#workflow) - Step-by-step skill creation process
-- [Description Requirements](#description-requirements) - Discovery field formatting
-- [TOC Requirements](#toc-requirements) - When and how to add table of contents
-- [Reference Files](#reference-files) - Links to detailed patterns, checklist, anti-patterns
+- [Mental Model](#mental-model) - How skills load and how context is consumed
+- [Visual Overview](#visual-overview) - File layout and evaluation loop map
+- [Quick Reference](#quick-reference) - Limits, metadata constraints, storage locations
+- [Task Router](#task-router) - Where to go based on the task type
+- [Before You Begin](#before-you-begin) - Required discovery questions
+- [Workflow](#workflow) - End-to-end skill creation and refresh flow
+- [Description Requirements](#description-requirements) - Discovery-critical frontmatter guidance
+- [Runtime And Tooling Requirements](#runtime-and-tooling-requirements) - Dependencies, MCP naming, script intent
+- [Validation And Intermediate Outputs](#validation-and-intermediate-outputs) - Plan-validate-execute safety pattern
+- [TOC And Reference Rules](#toc-and-reference-rules) - Navigation and depth constraints
+- [Reference Files](#reference-files) - Patterns, checklist, anti-patterns
 
 ---
 
-Skills are **selective-load information architectures**—agent-queryable knowledge bases that minimize context window usage through progressive disclosure.
+Skills are selective-load information systems. Keep SKILL.md concise, route to detailed files, and verify outcomes with repeatable checks.
 
 ## Mental Model
 
-```
-Startup:     All skill metadata (name/description) pre-loaded
-Trigger:     SKILL.md loads on-demand
-Navigation:  Reference files load only when explicitly read
-Execution:   Scripts run without loading source code
+```text
+Startup:    Skill metadata (name/description) is pre-loaded
+Trigger:    SKILL.md loads on demand
+Navigation: Reference files load only when explicitly read
+Execution:  Scripts can run without loading source into context
 ```
 
-Design skills as search databases with intelligent entry points, not as documentation.
+Design for discoverability first, then detail depth.
+
+## Visual Overview
+
+```mermaid
+flowchart TD
+  metadata[metadata_name_description] --> hub[SKILL_md_hub]
+  hub --> refs[reference_files_one_level]
+  hub --> scripts[scripts_execute_or_read]
+  hub --> evals[evaluations_and_model_tests]
+  evals --> observe[observe_refine_test_loop]
+  observe --> hub
+```
 
 ## Quick Reference
 
-| Constraint | Limit |
-|------------|-------|
-| SKILL.md | <500 lines |
-| TOC required | Any file >100 lines |
-| Reference depth | 1 level from SKILL.md |
-| Name format | lowercase-hyphenated, <64 chars |
-| Description | <1024 chars, third-person |
+| Constraint          | Limit                                               |
+| ------------------- | --------------------------------------------------- |
+| SKILL.md body       | Under 500 lines                                     |
+| TOC required        | Any file over 100 lines                             |
+| Reference depth     | One level from SKILL.md                             |
+| Name format         | Lowercase letters, numbers, hyphens; under 64 chars |
+| Name reserved words | Do not include `anthropic` or `claude`              |
+| Description         | Non-empty, under 1024 chars, third person           |
 
 ### Storage Locations
 
-| Type | Path | Scope |
-|------|------|-------|
-| Personal | `~/.cursor/skills/skill-name/` | Available across all your projects |
-| Project | `.cursor/skills/skill-name/` | Shared with anyone using the repository |
+| Type     | Path                           | Scope                           |
+| -------- | ------------------------------ | ------------------------------- |
+| Personal | `~/.cursor/skills/skill-name/` | Available across local projects |
+| Project  | `.cursor/skills/skill-name/`   | Shared in repository            |
 
-**IMPORTANT**: Never create skills in `~/.cursor/skills-cursor/`. This directory is reserved for Cursor's internal built-in skills.
+Do not create skills in `~/.cursor/skills-cursor/`.
 
 ## Task Router
 
 **Creating a new skill?**
-→ Start with [Before You Begin](#before-you-begin), then follow [Workflow](#workflow)
+Start at [Before You Begin](#before-you-begin), then follow [Workflow](#workflow).
 
-**Reviewing/improving a skill?**
-→ Use [checklist.md](checklist.md) for quality verification
+**Refreshing an existing skill?**
+Start with [Workflow](#workflow) step 1 and run evaluation-first updates before restructuring docs.
 
-**Debugging skill discovery issues?**
-→ Check description field—see [Description Requirements](#description-requirements)
+**Skill is not triggering reliably?**
+Use [Description Requirements](#description-requirements), then verify with [checklist.md](checklist.md).
 
-**Looking for structure patterns or examples?**
-→ See [patterns.md](patterns.md) for templates and complete examples
+**Need concrete templates?**
+Use [patterns.md](patterns.md) for evals, runtime sections, validation loops, and output patterns.
 
-**Avoiding common mistakes?**
-→ See [anti-patterns.md](anti-patterns.md)
-
----
+**Need failure examples to avoid?**
+Use [anti-patterns.md](anti-patterns.md).
 
 ## Before You Begin
 
-Gather these requirements before creating a skill:
+Gather these requirements before writing or editing the skill:
 
-### Essential Questions
-
-1. **Purpose**: What specific task or workflow should this skill enable?
-2. **Knowledge gap**: What domain knowledge does the agent lack that this provides?
+1. **Purpose**: What exact task or workflow should this skill enable?
+2. **Knowledge gap**: What does the agent need that it will not infer reliably?
 3. **Storage**: Personal (`~/.cursor/skills/`) or project (`.cursor/skills/`)?
-4. **Triggers**: When should the agent automatically apply this skill?
-5. **Output format**: Are there specific templates, formats, or styles required?
+4. **Triggers**: When should this skill load?
+5. **Output format**: Any template or strict structure required?
 
-### Inferring from Context
-
-If you have conversation context, infer the skill from what was discussed—workflows, patterns, or domain knowledge that emerged naturally.
-
-### Gathering Information
-
-Use the AskQuestion tool when available for efficient structured gathering:
-
-```
-Example questions:
-- "Where should this skill be stored?" → ["Personal (~/.cursor/skills/)", "Project (.cursor/skills/)"]
-- "Should this skill include executable scripts?" → ["Yes", "No"]
-- "What's the primary trigger scenario?" → [open-ended or specific options]
-```
-
-If AskQuestion is unavailable, ask conversationally.
-
----
+Use AskQuestion for structured collection when available.
 
 ## Workflow
 
-### 1. Gather Requirements
-Complete [Before You Begin](#before-you-begin) checklist.
+### 1) Discovery
 
-### 2. Design Structure
+Capture purpose, constraints, triggers, and output expectations from the user or conversation context.
 
-```
+### 2) Evaluation-First Setup
+
+Before extensive docs:
+
+1. Run representative tasks without the skill and record gaps.
+2. Create at least three evaluation scenarios.
+3. Define expected behaviors and pass conditions.
+4. Decide which model tiers will be used and include them in test coverage.
+
+Use templates in [patterns.md](patterns.md).
+
+### 3) Structure Design
+
+```text
 skill-name/
-├── SKILL.md           # Navigation + essentials (<500 lines)
-├── reference/         # Detailed docs (loaded on-demand)
+├── SKILL.md          # Hub and routing (concise)
+├── references/        # Optional detailed docs
 │   └── *.md
-└── scripts/           # Utilities (executed, not loaded)
+└── scripts/          # Optional utility scripts
     └── *.py
 ```
 
-### 3. Write Description
+Keep references one level deep from `SKILL.md`.
 
-Template:
+### 4) Authoring
 
-```yaml
-description: [Capabilities]. Use when [triggers] or when the user mentions [keywords].
-```
+Write `SKILL.md` as a navigation hub:
 
-### 4. Create SKILL.md
+- Include frontmatter (`name`, `description`).
+- Add TOC if file exceeds 100 lines.
+- Keep common workflows inline and concise.
+- Link to references with context.
+- Add runtime/tooling guidance where relevant.
 
-- Navigation hub with decision trees
-- Essential workflows inline (under 20 lines each)
-- Links to reference files with context
-- TOC if exceeding 100 lines
+### 5) Verification
 
-### 5. Create Supporting Files
+Run checks from [checklist.md](checklist.md), including discovery quality, structure, runtime/tooling clarity, and validation patterns.
 
-- Reference files for detailed content (>30 lines)
-- Utility scripts for repeatable operations
-- Examples file if output quality depends on seeing examples
+### 6) Observe-Refine-Test Loop
 
-### 6. Verify Quality
+Use two instances conceptually:
 
-Run through [checklist.md](checklist.md).
+- **Authoring instance**: updates instructions and structure.
+- **Testing instance**: executes real tasks using the skill.
 
----
+Observe behavior, capture misses, refine instructions, rerun evaluations, and repeat.
 
 ## Description Requirements
 
-The description is the **only** thing agents see before loading. It must:
+Description is discovery-critical and must include:
 
-1. **State capabilities** (what it does)
-2. **State triggers** (when to use)
-3. **Include keywords** (searchable terms)
-4. **Use third person** (injected into system prompt)
+1. **Capabilities** (what the skill does)
+2. **Triggers** (when to use it)
+3. **Keywords** (terms users are likely to say)
+4. **Third-person voice**
 
 ```yaml
 # Good
-description: Process royalty reports and sync platform data. Use when handling MLC pipelines, debugging data imports, or when the user mentions ISRCs, ISWCs, or metadata reconciliation.
+description: Extracts text and tables from PDF files, fills forms, and merges documents. Use when working with PDFs, form workflows, or document extraction tasks.
 
 # Bad
-description: Helps with music data stuff.
+description: I can help with PDFs.
 ```
 
-### More Examples
+## Runtime And Tooling Requirements
 
-```yaml
-# Git commit helper
-description: Generate descriptive commit messages by analyzing git diffs. Use when the user asks for help writing commit messages or reviewing staged changes.
+When a skill uses scripts or external tools:
 
-# Code review
-description: Review code for quality, security, and best practices following team standards. Use when reviewing pull requests, code changes, or when the user asks for a code review.
+1. Do not assume dependencies are installed.
+2. List required packages and installation steps where needed.
+3. State script intent explicitly:
+   - "Run `scripts/validate.py`" (execute)
+   - "Read `scripts/validate.py`" (reference)
+4. Use fully qualified MCP tool names: `ServerName:tool_name`.
 
-# PDF processing
-description: Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction.
-```
+Example: `GitHub:create_issue`, `BigQuery:bigquery_schema`.
 
----
+## Validation And Intermediate Outputs
 
-## TOC Requirements
+For risky, destructive, or large batch tasks, require plan-validate-execute:
 
-Any file >100 lines needs a TOC where entries are **self-descriptive**:
+1. Produce intermediate plan artifact (for example `changes.json`).
+2. Validate plan artifact with deterministic checks.
+3. Execute only if validation passes.
+4. Verify result and loop on failures.
 
-```markdown
-## Contents
-- [Authentication](#auth) - OAuth2 with Google, Redis token storage, 1-hour expiry
-- [Database](#db) - PostgreSQL pooling, migrations, backup procedures
-```
+Use templates in [patterns.md](patterns.md).
 
-NOT just labels:
-```markdown
-## Contents
-- Authentication
-- Database
-```
+## TOC And Reference Rules
 
-The agent must determine relevance from the TOC entry alone.
-
----
+- Any markdown file over 100 lines needs a self-descriptive TOC.
+- TOC entries must include context, not just labels.
+- Link all reference files directly from `SKILL.md` (one-level depth).
+- Avoid deep nesting and ambiguous file names.
 
 ## Reference Files
 
-- [patterns.md](patterns.md) - Structure patterns, TOC formats, navigation trees, complete examples
-- [checklist.md](checklist.md) - Pre-submission quality verification
-- [anti-patterns.md](anti-patterns.md) - Common mistakes and how to avoid them
+- [patterns.md](patterns.md) - Reusable templates for evaluations, model testing, runtime/tooling sections, validation loops, and workflow structures
+- [checklist.md](checklist.md) - Final verification list before sharing or relying on a skill
+- [anti-patterns.md](anti-patterns.md) - Common failure modes and concrete corrections
