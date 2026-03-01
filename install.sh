@@ -11,19 +11,26 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CURSOR_SKILLS="$HOME/.cursor/skills"
+SKILLS_DIR="$HOME/.cursor/skills"
 DRY_RUN=false
 
-if [[ "${1:-}" == "--dry-run" ]]; then
-  DRY_RUN=true
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=true ;;
+    --*) echo "Unknown flag: $arg"; exit 1 ;;
+    *) SKILLS_DIR="$arg" ;;  # positional arg overrides default path
+  esac
+done
+
+if $DRY_RUN; then
   echo "[dry-run] No changes will be made."
 fi
 
-mkdir -p "$CURSOR_SKILLS"
+mkdir -p "$SKILLS_DIR"
 
 for skill_dir in "$REPO_DIR"/*/; do
   skill_name="$(basename "$skill_dir")"
-  target="$CURSOR_SKILLS/$skill_name"
+  target="$SKILLS_DIR/$skill_name"
 
   # Skip non-skill entries (hidden dirs, files)
   [[ "$skill_name" == .* ]] && continue
@@ -59,4 +66,4 @@ for skill_dir in "$REPO_DIR"/*/; do
 done
 
 echo ""
-echo "Done. Skills directory: $CURSOR_SKILLS"
+echo "Done. Skills directory: $SKILLS_DIR"

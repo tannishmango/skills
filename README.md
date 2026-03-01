@@ -1,6 +1,6 @@
 # skills
 
-A collection of Agent Skills for [Cursor](https://cursor.com). Each skill gives the AI agent specialized knowledge, workflows, and capabilities it wouldn't reliably have on its own.
+A collection of Agent Skills for AI coding assistants. Each skill gives the agent specialized knowledge, workflows, and capabilities it wouldn't reliably have on its own.
 
 ## Skills
 
@@ -51,7 +51,9 @@ cd ~/Desktop/code/skills
 ./install.sh
 ```
 
-The script is safe to re-run. It skips skills already correctly linked and won't touch marketplace-installed skills (real directories).
+The script is safe to re-run. It skips skills already correctly linked and won't touch skills installed by other means (real directories).
+
+> The default install path is `~/.cursor/skills/`. If your IDE uses a different skills directory, pass it as an argument: `./install.sh /path/to/skills`.
 
 ### Updating
 
