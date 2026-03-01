@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>give-me-a-prompt · Skill Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f0e;
+    --surface: #141714;
+    --surface2: #1c201b;
+    --border: #2a2e29;
+    --border-bright: #3d4439;
+    --text: #e8ede6;
+    --text-dim: #8a9487;
+    --text-muted: #4d5449;
+    --accent: #a8d878;
+    --accent2: #6eb84a;
+    --accent-dim: #2d4020;
+    --warn: #e8c96a;
+    --warn-dim: #3d3210;
+    --danger: #e87a6a;
+    --danger-dim: #3d1f18;
+    --info: #7ab8e8;
+    --info-dim: #1a2e3d;
+    --purple: #c4a8e8;
+    --purple-dim: #2a1f3d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px 24px;
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .header-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid var(--accent2);
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+
+  .header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .header h1 span {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .header-sub {
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-left: auto;
+    text-align: right;
+    line-height: 1.4;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 77px);
+  }
+
+  /* ── NAV ── */
+  .nav {
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 77px;
+    height: calc(100vh - 77px);
+    overflow-y: auto;
+  }
+
+  .nav-section {
+    padding: 0 16px 8px;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 16px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 12px;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    position: relative;
+  }
+
+  .nav-item:hover { color: var(--text); background: var(--surface); }
+
+  .nav-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .nav-item.active .nav-dot { background: var(--accent); }
+  .nav-item.done .nav-dot { background: var(--accent2); }
+  .nav-item.done { color: var(--text-dim); }
+
+  /* ── MAIN ── */
+  .main {
+    padding: 40px 48px;
+    max-width: 860px;
+  }
+
+  /* ── SECTIONS ── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-header {
+    margin-bottom: 32px;
+  }
+
+  .section-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .section-desc {
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 24px 0;
+  }
+
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    cursor: pointer;
+    padding: 14px 16px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    border: 1px solid transparent;
+  }
+
+  .flow-step:hover { background: var(--surface); border-color: var(--border); }
+  .flow-step.highlighted { background: var(--accent-dim); border-color: var(--accent2); }
+
+  .flow-connector {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    margin-left: 27px;
+  }
+
+  .flow-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .flow-step.highlighted .flow-num {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .flow-content h4 {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .flow-content p {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .flow-step.highlighted .flow-content h4 { color: var(--accent); }
+
+  /* ── GATE CHECK ── */
+  .gate-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .gate-card {
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid;
+  }
+
+  .gate-card.pass {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border-color: var(--accent2);
+  }
+
+  .gate-card.fail {
+    background: color-mix(in srgb, var(--danger) 8%, transparent);
+    border-color: var(--danger);
+  }
+
+  .gate-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .gate-card.pass .gate-label { color: var(--accent); }
+  .gate-card.fail .gate-label { color: var(--danger); }
+
+  .gate-card p { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+
+  /* ── INTERACTIVE SCENARIO ── */
+  .scenario-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .scenario-tab {
+    padding: 8px 14px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-dim);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .scenario-tab:hover { color: var(--text); }
+  .scenario-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .scenario-panel { display: none; }
+  .scenario-panel.active { display: block; }
+
+  /* ── AUDIT TABLE ── */
+  .audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .audit-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .audit-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .audit-table tr:last-child td { border-bottom: none; }
+
+  .audit-table tr:hover td { background: var(--surface); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .badge-must { background: var(--danger-dim); color: var(--danger); border: 1px solid var(--danger); }
+  .badge-mention { background: var(--warn-dim); color: var(--warn); border: 1px solid var(--warn); }
+  .badge-later { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border-bright); }
+  .badge-done { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent2); }
+
+  /* ── PROMPT BUILDER ── */
+  .prompt-builder {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .prompt-builder-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .prompt-builder-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .prompt-size-indicator {
+    font-size: 10px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .size-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .size-small { background: var(--accent); }
+  .size-medium { background: var(--warn); }
+  .size-large { background: var(--danger); }
+
+  .prompt-sections {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .prompt-section-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .prompt-section-row:hover { border-color: var(--border-bright); background: var(--surface2); }
+  .prompt-section-row.included { border-color: var(--accent2); background: var(--accent-dim); }
+
+  .prompt-section-check {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid var(--border-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .prompt-section-row.included .prompt-section-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  .prompt-section-name {
+    font-size: 12px;
+    color: var(--text-dim);
+    flex: 1;
+  }
+
+  .prompt-section-row.included .prompt-section-name { color: var(--text); }
+
+  .prompt-section-when {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  .prompt-section-row.included .prompt-section-when { color: var(--accent2); }
+
+  .prompt-preview {
+    border-top: 1px solid var(--border);
+    padding: 16px;
+    background: var(--bg);
+  }
+
+  .prompt-preview pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .prompt-preview .ph { color: var(--text-muted); font-style: italic; }
+  .prompt-preview .heading { color: var(--accent); font-weight: 500; }
+  .prompt-preview .ref { color: var(--info); }
+  .prompt-preview .issue { color: var(--warn); }
+
+  /* ── ANTI-PATTERNS ── */
+  .antipattern-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .ap-card {
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ap-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--danger);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .ap-card:hover::before { opacity: 1; }
+  .ap-card:hover { border-color: var(--danger); }
+
+  .ap-name {
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .ap-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .ap-example {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--danger-dim);
+    border-radius: 4px;
+    border: 1px solid var(--danger);
+    font-size: 11px;
+    color: var(--danger);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .ap-card.expanded .ap-example { display: block; }
+
+  /* ── DENSITY SLIDER ── */
+  .density-demo {
+    margin: 20px 0;
+  }
+
+  .density-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .density-btn {
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .density-btn:hover { border-color: var(--border-bright); color: var(--text); }
+  .density-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+  .density-preview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    min-height: 120px;
+    transition: all 0.2s;
+  }
+
+  .density-preview .h { color: var(--accent); }
+  .density-preview .r { color: var(--info); }
+  .density-preview .w { color: var(--warn); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 1px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── NAV BUTTONS ── */
+  .nav-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .nav-btn {
+    padding: 9px 18px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .nav-btn:hover { border-color: var(--border-bright); color: var(--text); }
+
+  .nav-btn.primary {
+    background: var(--accent-dim);
+    border-color: var(--accent2);
+    color: var(--accent);
+  }
+
+  .nav-btn.primary:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    padding: 14px 16px;
+    border-radius: 6px;
+    border-left: 3px solid;
+    margin: 16px 0;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .callout-warn { background: var(--warn-dim); border-color: var(--warn); color: var(--warn); }
+  .callout-info { background: var(--info-dim); border-color: var(--info); color: var(--info); }
+  .callout-success { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+  .callout-danger { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
+
+  .callout strong { font-weight: 500; }
+  .callout p { color: var(--text-dim); margin-top: 4px; font-size: 11px; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    overflow-x: auto;
+    margin: 12px 0;
+    white-space: pre;
+  }
+
+  .code-block .kw { color: var(--purple); }
+  .code-block .str { color: var(--accent); }
+  .code-block .comment { color: var(--text-muted); font-style: italic; }
+  .code-block .ref { color: var(--info); }
+
+  /* ── OMISSION REVEAL ── */
+  .omission-scenario {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .omission-header {
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .omission-body {
+    padding: 16px;
+  }
+
+  .omission-spec {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .omission-spec .spec-req { color: var(--text); }
+  .omission-spec .spec-missing { color: var(--danger); text-decoration: line-through; opacity: 0.6; }
+  .omission-spec .spec-missing.revealed { text-decoration: none; opacity: 1; background: var(--danger-dim); padding: 1px 4px; border-radius: 2px; }
+
+  .reveal-btn {
+    padding: 7px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--warn);
+    background: var(--warn-dim);
+    color: var(--warn);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 8px;
+  }
+
+  .reveal-btn:hover { background: var(--warn); color: var(--bg); }
+
+  .omission-finding {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--danger-dim);
+    border: 1px solid var(--danger);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--danger);
+    line-height: 1.6;
+  }
+
+  .omission-finding.shown { display: block; }
+
+  /* ── COPY BUTTON ── */
+  .copy-btn {
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+  /* ── COMPLETION ── */
+  .completion-card {
+    background: var(--surface);
+    border: 1px solid var(--accent2);
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .completion-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  .completion-title {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .completion-sub {
+    color: var(--text-dim);
+    font-size: 12px;
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section.active { animation: fadeIn 0.25s ease; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .pulsing { animation: pulse 2s ease infinite; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-badge">Agent Skill · Walkthrough</div>
+    <h1>give-me-a-<span>prompt</span></h1>
+  </div>
+  <div class="header-sub">
+    Interactive tour · 6 sections<br>
+    <span id="progress-text" style="color: var(--accent)">0% complete</span>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" onclick="goTo(0)" id="nav-0">
+      <div class="nav-dot"></div> What is this skill?
+    </div>
+    <div class="nav-item" onclick="goTo(1)" id="nav-1">
+      <div class="nav-dot"></div> Gate Check
+    </div>
+
+    <div class="nav-section">Core Workflow</div>
+    <div class="nav-item" onclick="goTo(2)" id="nav-2">
+      <div class="nav-dot"></div> 7-Step Flow
+    </div>
+    <div class="nav-item" onclick="goTo(3)" id="nav-3">
+      <div class="nav-dot"></div> Self-Audit
+    </div>
+
+    <div class="nav-section">Output</div>
+    <div class="nav-item" onclick="goTo(4)" id="nav-4">
+      <div class="nav-dot"></div> Prompt Builder
+    </div>
+    <div class="nav-item" onclick="goTo(5)" id="nav-5">
+      <div class="nav-dot"></div> Anti-Patterns
+    </div>
+
+    <div class="nav-section">Finish</div>
+    <div class="nav-item" onclick="goTo(6)" id="nav-6">
+      <div class="nav-dot"></div> Quick Reference
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
+
+    <!-- ── SECTION 0: WHAT IS THIS SKILL ── -->
+    <div class="section active" id="section-0">
+      <div class="section-header">
+        <div class="section-eyebrow">Section 1 of 7</div>
+        <div class="section-title">What is<br><em style="font-style:italic;color:var(--accent)">give-me-a-prompt</em>?</div>
+        <div class="section-desc">A skill that generates a self-contained, copyable handoff prompt so the next agent chat can continue your work without re-discovering context.</div>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>The Core Problem</strong>
+        <p>Every new agent chat starts with zero memory. Without a handoff prompt, the next agent wastes its first 5–10 tool calls just figuring out what was done, what's broken, and what to do next.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">The Skill in One Sentence</div>
+        <p style="color: var(--text); font-size: 14px; line-height: 1.6;">
+          Invoke <code style="color: var(--accent)">give-me-a-prompt</code> at the end of a session → get a structured, copy-pasteable prompt that carries full context to the next agent.
+        </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0;">
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 8px;">🔍</div>
+          <div style="font-size: 11px; color: var(--accent); margin-bottom: 4px;">AUDITS</div>
+          <div style="font-size: 11px; color: var(--text-dim);">What was done vs. what was asked</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 8px;">📋</div>
+          <div style="font-size: 11px; color: var(--accent); margin-bottom: 4px;">STRUCTURES</div>
+          <div style="font-size: 11px; color: var(--text-dim);">Context, task, files, issues, approach</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 8px;">🚀</div>
+          <div style="font-size: 11px; color: var(--accent); margin-bottom: 4px;">DELIVERS</div>
+          <div style="font-size: 11px; color: var(--text-dim);">One copyable block, ready to paste</div>
+        </div>
+      </div>
+
+      <div class="callout callout-success">
+        <strong>When to invoke it</strong>
+        <p>Say "give me a prompt", "handoff", "continue in new chat", or "next agent" — the skill activates automatically.</p>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn primary" onclick="goTo(1)">Next: Gate Check →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 1: GATE CHECK ── -->
+    <div class="section" id="section-1">
+      <div class="section-header">
+        <div class="section-eyebrow">Section 2 of 7</div>
+        <div class="section-title">Gate Check</div>
+        <div class="section-desc">Before writing any prompt, the skill asks three questions. If any gate fails, it tells you why — and doesn't generate a useless prompt.</div>
+      </div>
+
+      <div class="gate-grid">
+        <div class="gate-card pass">
+          <div class="gate-label">✓ Gate Passes</div>
+          <p>There is actionable work for another agent to do</p>
+        </div>
+        <div class="gate-card fail">
+          <div class="gate-label">✗ Gate Fails</div>
+          <p>Everything is complete — no handoff needed</p>
+        </div>
+        <div class="gate-card pass">
+          <div class="gate-label">✓ Gate Passes</div>
+          <p>An agent can actually do the next step autonomously</p>
+        </div>
+        <div class="gate-card fail">
+          <div class="gate-label">✗ Gate Fails</div>
+          <p>Next step requires you to wait on CI, make a business decision, or check an external system</p>
+        </div>
+        <div class="gate-card pass">
+          <div class="gate-label">✓ Gate Passes</div>
+          <p>The scope is non-trivial (multi-step, multi-file)</p>
+        </div>
+        <div class="gate-card fail">
+          <div class="gate-label">✗ Gate Fails</div>
+          <p>It's a one-liner — a brief suggestion is better than a full handoff prompt</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>Gate Failure = Honest Response</strong>
+        <p>If the gate fails, the skill communicates why and suggests what to do instead. It never generates a prompt just because it was invoked.</p>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <div class="card-title" style="margin-bottom: 12px;">Try it: Which scenario passes all gates?</div>
+        <div id="gate-scenarios" style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="prompt-section-row" onclick="checkGate(this, true)" style="cursor: pointer;">
+            <div class="prompt-section-check"></div>
+            <div class="prompt-section-name">Session implemented 3 of 5 tasks from a plan. Tasks 4–5 are clear and automatable.</div>
+          </div>
+          <div class="prompt-section-row" onclick="checkGate(this, false)" style="cursor: pointer;">
+            <div class="prompt-section-check"></div>
+            <div class="prompt-section-name">Session is complete. All tasks done. CI is green.</div>
+          </div>
+          <div class="prompt-section-row" onclick="checkGate(this, false)" style="cursor: pointer;">
+            <div class="prompt-section-check"></div>
+            <div class="prompt-section-name">Next step is "wait for product to approve the design before coding."</div>
+          </div>
+          <div class="prompt-section-row" onclick="checkGate(this, true)" style="cursor: pointer;">
+            <div class="prompt-section-check"></div>
+            <div class="prompt-section-name">Refactor is half done. 4 more files need updating. Agent can do it.</div>
+          </div>
+        </div>
+        <div id="gate-feedback" style="display: none; margin-top: 12px;"></div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn" onclick="goTo(0)">← Back</button>
+        <button class="nav-btn primary" onclick="goTo(2)">Next: 7-Step Flow →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: 7-STEP FLOW ── -->
+    <div class="section" id="section-2">
+      <div class="section-header">
+        <div class="section-eyebrow">Section 3 of 7</div>
+        <div class="section-title">The 7-Step Flow</div>
+        <div class="section-desc">Click each step to expand what the skill does at that stage.</div>
+      </div>
+
+      <div class="flow" id="flow-diagram">
+        <div class="flow-step" onclick="highlightStep(0)">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <h4>Determine Task Source</h4>
+            <p>Did the user say what the prompt should cover? If not, infer from the session's work, open tasks, and deferred items.</p>
+          </div>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-step" onclick="highlightStep(1)">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <h4>Establish Broader Scope</h4>
+            <p>Is this part of a feature, refactor, migration, or multi-PR initiative? Find the plan or spec and locate where this task falls.</p>
+          </div>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-step highlighted" onclick="highlightStep(2)">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <h4>Self-Audit Current Work ← most critical</h4>
+            <p>Compare what was asked vs. what was delivered. Surface gaps, silent omissions, and incomplete work honestly.</p>
+          </div>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-step" onclick="highlightStep(3)">
+          <div class="flow-num">4</div>
+          <div class="flow-content">
+            <h4>Scope the Prompt</h4>
+            <p>Combine task + broader context + audit findings into primary scope, preliminary items, tangential items, and exclusions.</p>
+          </div>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-step" onclick="highlightStep(4)">
+          <div class="flow-num">5</div>
+          <div class="flow-content">
+            <h4>Consider Meta-Orchestration</h4>
+            <p>Should the next agent plan first? Use subagents for parallel tracks? Commit incrementally? Only add guidance when it genuinely helps.</p>
+          </div>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-step" onclick="highlightStep(5)">
+          <div class="flow-num">6</div>
+          <div class="flow-content">
+            <h4>Ask Clarifications If Needed</h4>
+            <p>Only ask when the prompt would be meaningfully better with user input — not for process compliance.</p>
+          </div>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-step" onclick="highlightStep(6)">
+          <div class="flow-num">7</div>
+          <div class="flow-content">
+            <h4>Write and Present the Prompt</h4>
+            <p>Generate the fenced code block with companion summary: what's covered, what's excluded, what needs user attention.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="step-detail" style="display: none; margin-top: 16px;"></div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn" onclick="goTo(1)">← Back</button>
+        <button class="nav-btn primary" onclick="goTo(3)">Next: Self-Audit →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: SELF-AUDIT ── -->
+    <div class="section" id="section-3">
+      <div class="section-header">
+        <div class="section-eyebrow">Section 4 of 7</div>
+        <div class="section-title">Self-Audit</div>
+        <div class="section-desc">The most critical step. The skill compares what was asked against what was delivered and surfaces the delta honestly.</div>
+      </div>
+
+      <div class="callout callout-danger">
+        <strong>Why this matters</strong>
+        <p>Agents routinely make scope-reducing decisions without surfacing them. A spec says "implement X with Y and Z" — the agent implements X with Y, quietly dropping Z. The next agent inherits a false picture and builds on a shaky foundation.</p>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <div class="card-title" style="margin-bottom: 12px;">Interactive: Spot the Silent Omission</div>
+        <div class="omission-scenario">
+          <div class="omission-header">
+            <span style="color: var(--accent)">●</span> Spec vs. Implementation
+          </div>
+          <div class="omission-body">
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">ORIGINAL SPEC REQUIREMENTS</div>
+            <div class="omission-spec" id="omission-spec">
+              <div class="spec-req">1. Implement <code>WeightedAverage</code> aggregation strategy</div>
+              <div class="spec-req">2. Weights should be configurable per dimension</div>
+              <div class="spec-req">3. Default to equal weights when none specified</div>
+              <div class="spec-req">4. Add unit tests for all weight configurations</div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; margin-top: 12px;">AGENT'S SUMMARY</div>
+            <div class="omission-spec">
+              <div class="spec-req">✓ Implemented <code>WeightedAverage</code> with equal-weight default</div>
+              <div class="spec-req">✓ Added unit tests for the happy path</div>
+            </div>
+            <button class="reveal-btn" onclick="revealOmission()">Run Self-Audit → Reveal Omissions</button>
+            <div class="omission-finding" id="omission-finding">
+              <strong>🔍 Self-Audit Found 2 Silent Omissions:</strong><br><br>
+              <strong>1. Configurable weights (Spec req #2) — MISSING</strong><br>
+              The agent implemented equal weights only. The spec explicitly required per-dimension configurability. This was silently dropped without surfacing the tradeoff.<br><br>
+              <strong>2. Test coverage gap (Spec req #4) — PARTIAL</strong><br>
+              Tests only cover the happy path (equal weights). No tests for custom weight configurations or edge cases like weights that don't sum to 1.0.<br><br>
+              <em style="color: var(--warn)">→ Categorized as: Must Include In Prompt (next agent needs to handle these)</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin: 24px 0;">
+        <div class="card-title" style="margin-bottom: 12px;">Audit Categories</div>
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th>Finding</th>
+              <th>Category</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Incomplete implementation the next task depends on</td>
+              <td><span class="badge badge-must">Must Include</span></td>
+              <td style="color: var(--text-dim)">Goes in prompt's Known Issues</td>
+            </tr>
+            <tr>
+              <td>Bug introduced that affects the codebase</td>
+              <td><span class="badge badge-must">Must Include</span></td>
+              <td style="color: var(--text-dim)">Goes in prompt's Known Issues</td>
+            </tr>
+            <tr>
+              <td>Scope tradeoff the user needs to decide on</td>
+              <td><span class="badge badge-mention">Mention to User</span></td>
+              <td style="color: var(--text-dim)">Surfaced outside the prompt</td>
+            </tr>
+            <tr>
+              <td>Minor code quality issue noticed in passing</td>
+              <td><span class="badge badge-later">Document Later</span></td>
+              <td style="color: var(--text-dim)">Prompt tells agent to log it</td>
+            </tr>
+            <tr>
+              <td>All spec requirements implemented and tested</td>
+              <td><span class="badge badge-done">Clean</span></td>
+              <td style="color: var(--text-dim)">No action needed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn" onclick="goTo(2)">← Back</button>
+        <button class="nav-btn primary" onclick="goTo(4)">Next: Prompt Builder →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: PROMPT BUILDER ── -->
+    <div class="section" id="section-4">
+      <div class="section-header">
+        <div class="section-eyebrow">Section 5 of 7</div>
+        <div class="section-title">Prompt Builder</div>
+        <div class="section-desc">Toggle sections on/off to see how prompt density scales with task complexity. Small tasks get lean prompts — large tasks get the full structure.</div>
+      </div>
+
+      <div class="density-demo">
+        <div class="density-controls">
+          <button class="density-btn active" onclick="setDensity('small')">Small Task</button>
+          <button class="density-btn" onclick="setDensity('medium')">Medium Task</button>
+          <button class="density-btn" onclick="setDensity('large')">Large Task</button>
+        </div>
+      </div>
+
+      <div class="prompt-builder">
+        <div class="prompt-builder-header">
+          <div class="prompt-builder-title">Prompt Sections</div>
+          <div class="prompt-size-indicator">
+            <div class="size-dot" id="size-dot" style="background: var(--accent)"></div>
+            <span id="size-label">~10–30 lines · lean</span>
+          </div>
+        </div>
+        <div class="prompt-sections" id="prompt-sections">
+          <div class="prompt-section-row included" data-section="context" onclick="toggleSection(this)">
+            <div class="prompt-section-check">✓</div>
+            <div class="prompt-section-name">## Context</div>
+            <div class="prompt-section-when">always</div>
+          </div>
+          <div class="prompt-section-row included" data-section="task" onclick="toggleSection(this)">
+            <div class="prompt-section-check">✓</div>
+            <div class="prompt-section-name">## Task</div>
+            <div class="prompt-section-when">always</div>
+          </div>
+          <div class="prompt-section-row included" data-section="files" onclick="toggleSection(this)">
+            <div class="prompt-section-check">✓</div>
+            <div class="prompt-section-name">## Key Files and References</div>
+            <div class="prompt-section-when">always</div>
+          </div>
+          <div class="prompt-section-row" data-section="issues" onclick="toggleSection(this)">
+            <div class="prompt-section-check"></div>
+            <div class="prompt-section-name">## Known Issues and Considerations</div>
+            <div class="prompt-section-when">when audit found gaps</div>
+          </div>
+          <div class="prompt-section-row" data-section="approach" onclick="toggleSection(this)">
+            <div class="prompt-section-check"></div>
+            <div class="prompt-section-name">## Approach Guidance</div>
+            <div class="prompt-section-when">complex tasks only</div>
+          </div>
+          <div class="prompt-section-row" data-section="tangential" onclick="toggleSection(this)">
+            <div class="prompt-section-check"></div>
+            <div class="prompt-section-name">## Tangential Items</div>
+            <div class="prompt-section-when">discovered out-of-scope issues</div>
+          </div>
+        </div>
+        <div class="prompt-preview">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;">Live Preview</span>
+            <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+          </div>
+          <pre id="prompt-preview-content"></pre>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn" onclick="goTo(3)">← Back</button>
+        <button class="nav-btn primary" onclick="goTo(5)">Next: Anti-Patterns →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: ANTI-PATTERNS ── -->
+    <div class="section" id="section-5">
+      <div class="section-header">
+        <div class="section-eyebrow">Section 6 of 7</div>
+        <div class="section-title">Anti-Patterns</div>
+        <div class="section-desc">Six ways handoff prompts fail. Click each to see a concrete bad example.</div>
+      </div>
+
+      <div class="antipattern-grid">
+        <div class="ap-card" onclick="toggleAP(this)">
+          <div class="ap-name">The Vague Handoff</div>
+          <div class="ap-desc">No specifics — the next agent spends the whole session re-discovering context.</div>
+          <div class="ap-example">"Continue working on the feature. Check the recent changes and pick up where I left off."</div>
+        </div>
+        <div class="ap-card" onclick="toggleAP(this)">
+          <div class="ap-name">The Code Dump</div>
+          <div class="ap-desc">Hundreds of lines of pasted code instead of @ file references. Wastes context window.</div>
+          <div class="ap-example">[500 lines of pasted code] "Here's the current state of pipeline.py. Fix the bug."</div>
+        </div>
+        <div class="ap-card" onclick="toggleAP(this)">
+          <div class="ap-name">The Optimistic Summary</div>
+          <div class="ap-desc">Describing the previous session as complete and clean when it has gaps or silent omissions.</div>
+          <div class="ap-example">"The previous session fully implemented the scoring engine. Continue with the API layer." (It didn't — configurable weights were silently dropped.)</div>
+        </div>
+        <div class="ap-card" onclick="toggleAP(this)">
+          <div class="ap-name">The Kitchen Sink</div>
+          <div class="ap-desc">Every tangential issue, minor observation, and future idea crammed in. The agent can't find the actual task.</div>
+          <div class="ap-example">"Also fix the test fixtures, and the logging config, and there's a performance issue in the query layer, and we should probably refactor the models, and..."</div>
+        </div>
+        <div class="ap-card" onclick="toggleAP(this)">
+          <div class="ap-name">The Process-Heavy Prompt</div>
+          <div class="ap-desc">Half the prompt is instructions on how to work, not what to accomplish.</div>
+          <div class="ap-example">"First, create a plan. Then review the plan. Then create todos for the plan. Then review the todos. Then implement step 1 of the todos. Then..."</div>
+        </div>
+        <div class="ap-card" onclick="toggleAP(this)">
+          <div class="ap-name">Missing Progress State</div>
+          <div class="ap-desc">Describing the task but not where things stand — greenfield? continuation? failed attempt?</div>
+          <div class="ap-example">"Implement the path resolver." (Is this new? Was it started? Did a previous attempt fail? The agent has no idea.)</div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn" onclick="goTo(4)">← Back</button>
+        <button class="nav-btn primary" onclick="goTo(6)">Next: Quick Reference →</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 6: QUICK REFERENCE ── -->
+    <div class="section" id="section-6">
+      <div class="section-header">
+        <div class="section-eyebrow">Section 7 of 7</div>
+        <div class="section-title">Quick Reference</div>
+        <div class="section-desc">Everything you need to remember, at a glance.</div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+        <div class="card">
+          <div class="card-title">Trigger Phrases</div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+            <div style="font-size: 12px; color: var(--accent); padding: 4px 8px; background: var(--accent-dim); border-radius: 3px;">"give me a prompt"</div>
+            <div style="font-size: 12px; color: var(--accent); padding: 4px 8px; background: var(--accent-dim); border-radius: 3px;">"handoff"</div>
+            <div style="font-size: 12px; color: var(--accent); padding: 4px 8px; background: var(--accent-dim); border-radius: 3px;">"continue in new chat"</div>
+            <div style="font-size: 12px; color: var(--accent); padding: 4px 8px; background: var(--accent-dim); border-radius: 3px;">"next agent"</div>
+            <div style="font-size: 12px; color: var(--accent); padding: 4px 8px; background: var(--accent-dim); border-radius: 3px;">"transition prompt"</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Gate Check (3 Questions)</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px; font-size: 12px; color: var(--text-dim); line-height: 1.5;">
+            <div>1. Is there actionable work for another agent?</div>
+            <div>2. Can an agent actually do it?</div>
+            <div>3. Is the scope non-trivial?</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Audit Categories</div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px;">
+              <span class="badge badge-must">Must Include</span>
+              <span style="color: var(--text-dim)">Blockers for next task</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px;">
+              <span class="badge badge-mention">Mention to User</span>
+              <span style="color: var(--text-dim)">Needs user decision</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px;">
+              <span class="badge badge-later">Document Later</span>
+              <span style="color: var(--text-dim)">Not urgent, don't lose it</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Prompt Density</div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px; font-size: 11px; color: var(--text-dim);">
+            <div style="display: flex; justify-content: space-between;"><span>Small (bug fix, quick follow-up)</span><span style="color: var(--accent)">10–30 lines</span></div>
+            <div style="display: flex; justify-content: space-between;"><span>Medium (feature phase, refactor)</span><span style="color: var(--warn)">30–80 lines</span></div>
+            <div style="display: flex; justify-content: space-between;"><span>Large (multi-track, architecture)</span><span style="color: var(--danger)">80–150+ lines</span></div>
+            <div style="display: flex; justify-content: space-between;"><span>Over-sized (smell)</span><span style="color: var(--text-muted)">200+ lines → split it</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">The 5 Traits of Every Good Handoff Prompt</div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--text-dim); line-height: 1.5;">
+          <div><span style="color: var(--accent)">1.</span> <strong style="color: var(--text)">State is explicit</strong> — what's done, what's in progress, what's broken</div>
+          <div><span style="color: var(--accent)">2.</span> <strong style="color: var(--text)">Files are referenced with context</strong> — not just paths, but what to look for in each</div>
+          <div><span style="color: var(--accent)">3.</span> <strong style="color: var(--text)">Omissions are surfaced</strong> — previous agent's gaps are called out, not hidden</div>
+          <div><span style="color: var(--accent)">4.</span> <strong style="color: var(--text)">Scope is bounded</strong> — the agent knows what's in and out of scope</div>
+          <div><span style="color: var(--accent)">5.</span> <strong style="color: var(--text)">Complexity matches format</strong> — small tasks get lean prompts, large tasks get structure</div>
+        </div>
+      </div>
+
+      <div class="completion-card">
+        <div class="completion-icon">✦</div>
+        <div class="completion-title">Walkthrough Complete</div>
+        <div class="completion-sub">You now know how <code>give-me-a-prompt</code> works: gate check → audit → scope → build → deliver. Next time a session ends, just say "give me a prompt."</div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn" onclick="goTo(5)">← Back</button>
+        <button class="nav-btn primary" onclick="goTo(0)">↺ Start Over</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let currentSection = 0;
+  const totalSections = 7;
+  const visited = new Set([0]);
+
+  const stepDetails = [
+    { title: "Task Source", detail: "Priority order: (1) explicit user instructions, (2) infer from session's work and open tasks, (3) nothing actionable → fail the gate. When inferring, review the full conversation arc: what was planned, implemented, deferred, broken, and discovered." },
+    { title: "Broader Scope", detail: "Ask: Is this part of a feature, refactor, investigation, upgrade, migration, or multi-PR initiative? Does a plan, spec, task list, or investigation doc exist? Reference it in the prompt so the next agent doesn't treat the task as isolated." },
+    { title: "Self-Audit", detail: "The most critical step. Compare what was asked against what was delivered. Run the checklist: completeness, silent omissions, partial implementations, error handling, edge cases, test coverage, open questions, discovered issues, subagent blind spots, scope decisions." },
+    { title: "Scope the Prompt", detail: "Combine task + broader context + audit findings. Categorize: primary scope (main task), preliminary items (must-fix-first), tangential items (discovered out-of-scope issues), excluded items (mention to user outside the prompt)." },
+    { title: "Meta-Orchestration", detail: "Only include when it genuinely helps. Options: plan-first (ambiguous/architectural tasks), subagent parallelism (independent tracks), analysis-first (need to understand before changing), incremental commits (large tasks), tool awareness (explore subagents, TodoWrite, plan mode)." },
+    { title: "Clarifications", detail: "Ask when: broader scope is ambiguous and materially affects the prompt, multiple plausible next steps exist, self-audit revealed issues where user preference is unclear. Don't ask for process compliance or when context provides a reasonable answer." },
+    { title: "Write & Present", detail: "Generate the fenced code block. Follow with a companion summary: what the prompt covers, what was excluded and why, items that need user attention but aren't in the prompt. Match prompt density to task complexity." }
+  ];
+
+  function goTo(n) {
+    document.getElementById(`section-${currentSection}`).classList.remove('active');
+    document.getElementById(`nav-${currentSection}`).classList.remove('active');
+    if (visited.has(currentSection)) {
+      document.getElementById(`nav-${currentSection}`).classList.add('done');
+    }
+
+    currentSection = n;
+    visited.add(n);
+
+    document.getElementById(`section-${n}`).classList.add('active');
+    document.getElementById(`nav-${n}`).classList.remove('done');
+    document.getElementById(`nav-${n}`).classList.add('active');
+
+    const pct = Math.round((visited.size / totalSections) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = pct + '% complete';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function highlightStep(idx) {
+    const steps = document.querySelectorAll('.flow-step');
+    steps.forEach((s, i) => {
+      s.classList.toggle('highlighted', i === idx);
+    });
+
+    const detail = stepDetails[idx];
+    const el = document.getElementById('step-detail');
+    el.style.display = 'block';
+    el.innerHTML = `<div class="callout callout-info"><strong>Step ${idx+1}: ${detail.title}</strong><p>${detail.detail}</p></div>`;
+  }
+
+  function checkGate(el, passes) {
+    const rows = document.querySelectorAll('#gate-scenarios .prompt-section-row');
+    rows.forEach(r => r.classList.remove('included'));
+    el.classList.add('included');
+    el.querySelector('.prompt-section-check').textContent = passes ? '✓' : '✗';
+
+    const fb = document.getElementById('gate-feedback');
+    fb.style.display = 'block';
+    if (passes) {
+      fb.innerHTML = `<div class="callout callout-success"><strong>✓ Gate Passes</strong><p>All three conditions are met: there's actionable work, an agent can do it, and the scope is non-trivial. The skill would proceed to generate a prompt.</p></div>`;
+    } else {
+      fb.innerHTML = `<div class="callout callout-danger"><strong>✗ Gate Fails</strong><p>This scenario doesn't warrant a handoff prompt. The skill would communicate why and suggest what to do instead — not generate a useless prompt.</p></div>`;
+    }
+  }
+
+  function toggleAP(el) {
+    el.classList.toggle('expanded');
+  }
+
+  function revealOmission() {
+    document.getElementById('omission-finding').classList.add('shown');
+    const spec = document.getElementById('omission-spec');
+    const items = spec.querySelectorAll('.spec-req');
+    items[1].classList.add('spec-missing', 'revealed');
+    items[3].classList.add('spec-missing', 'revealed');
+  }
+
+  // ── PROMPT BUILDER ──
+  const sectionContent = {
+    context: `<span class="heading">## Context</span>
+
+This is part of the asset value score redesign.
+Tasks 1–2 are complete. This prompt covers Task 3.`,
+    task: `
+<span class="heading">## Task</span>
+
+Complete the aggregation layer (Task 3):
+1. Implement <span class="ref">HierarchicalAggregation</span> strategy
+2. Wire aggregation into <span class="ref">DimensionalScorer.compute()</span>
+3. Add tests for both strategies`,
+    files: `
+<span class="heading">## Key Files and References</span>
+
+<span class="ref">@openspec/changes/redesign-asset-value-score/tasks.md</span>
+<span class="ref">@src/scoring/aggregation.py</span> - existing base + WeightedAverage
+<span class="ref">@src/scoring/engine.py</span> - needs aggregation integration`,
+    issues: `
+<span class="heading">## Known Issues and Considerations</span>
+
+<span class="issue">- WeightedAverage uses equal weights only (spec requires configurable).
+  Previous agent silently dropped this. Fix or confirm with user.
+- Potential circular import between engine.py and aggregation.py.
+  Use Protocol or TYPE_CHECKING if this arises.</span>`,
+    approach: `
+<span class="heading">## Approach Guidance</span>
+
+Read design doc first. Implement HierarchicalAggregation following
+the same interface as WeightedAverage. Then integration, then tests.
+Consider subagents for parallel implementation tracks.`,
+    tangential: `
+<span class="heading">## Tangential Items</span>
+
+<span class="ph">- Test fixtures in tests/conftest.py reference deprecated fields.
+  Low priority. Document in an investigation doc, don't fix now.</span>`
+  };
+
+  function updatePromptPreview() {
+    const rows = document.querySelectorAll('#prompt-sections .prompt-section-row');
+    let content = '';
+    rows.forEach(row => {
+      if (row.classList.contains('included')) {
+        const key = row.dataset.section;
+        content += sectionContent[key] + '\n';
+      }
+    });
+    document.getElementById('prompt-preview-content').innerHTML = content.trim() || '<span class="ph">// No sections selected</span>';
+  }
+
+  function toggleSection(el) {
+    el.classList.toggle('included');
+    el.querySelector('.prompt-section-check').textContent = el.classList.contains('included') ? '✓' : '';
+    updatePromptPreview();
+    updateSizeIndicator();
+  }
+
+  function updateSizeIndicator() {
+    const count = document.querySelectorAll('#prompt-sections .prompt-section-row.included').length;
+    const dot = document.getElementById('size-dot');
+    const label = document.getElementById('size-label');
+    if (count <= 3) {
+      dot.style.background = 'var(--accent)';
+      label.textContent = '~10–30 lines · lean';
+    } else if (count <= 4) {
+      dot.style.background = 'var(--warn)';
+      label.textContent = '~30–80 lines · moderate';
+    } else {
+      dot.style.background = 'var(--danger)';
+      label.textContent = '~80–150+ lines · full structure';
+    }
+  }
+
+  function setDensity(size) {
+    document.querySelectorAll('.density-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const rows = document.querySelectorAll('#prompt-sections .prompt-section-row');
+    const configs = {
+      small: ['context', 'task', 'files'],
+      medium: ['context', 'task', 'files', 'issues'],
+      large: ['context', 'task', 'files', 'issues', 'approach', 'tangential']
+    };
+
+    rows.forEach(row => {
+      const include = configs[size].includes(row.dataset.section);
+      row.classList.toggle('included', include);
+      row.querySelector('.prompt-section-check').textContent = include ? '✓' : '';
+    });
+
+    updatePromptPreview();
+    updateSizeIndicator();
+  }
+
+  function copyPrompt(btn) {
+    const text = document.getElementById('prompt-preview-content').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // Init
+  updatePromptPreview();
+  updateSizeIndicator();
+</script>
+</body>
+</html>
